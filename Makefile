@@ -102,11 +102,6 @@ create_tests:
 # PROJECT RULES                                                                 #
 #################################################################################
 
-## Run Pipeline
-.PHONY: run
-run: requirements_quiet
-	$(PYTHON_INTERPRETER) $(PROJECT_NAME)/pipeline.py
-
 ## Run all tests
 .PHONY: test
 test: requirements_quiet
