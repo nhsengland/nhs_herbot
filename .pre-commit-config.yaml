@@ -1,0 +1,18 @@
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.0
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks: 
+      - id: run-make-lint
+        name: run-make-lint
+        entry: make lint
+        language: system
+  - repo: local
+    hooks:
+      - id: git-secrets
+        name: Git Secrets
+        description: git-secrets scans commits, commit messages, and --no-ff merges to prevent adding secrets into your git repositories.
+        entry: 'nhsd-git-secrets/pre-commit-mac.sh'
+        language: script

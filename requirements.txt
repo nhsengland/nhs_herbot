@@ -1,0 +1,24 @@
+black
+flake8
+exceptiongroup
+ipython
+isort
+jupyterlab
+loguru
+matplotlib
+mkdocs
+notebook
+numpy
+pandas
+pip
+pre-commit
+python-dotenv
+pytest
+pytest-cov
+pytest-mock
+pytest-xdist
+scikit-learn
+tqdm
+typer
+xlsxwriter
+-e .
