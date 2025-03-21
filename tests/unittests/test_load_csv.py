@@ -16,7 +16,7 @@ from nhs_herbot.load_csv import (
 
 @pytest.fixture
 def mock_read_csv():
-    with patch("nhs_herbot.data_in.load_csv.pd.read_csv") as mock:
+    with patch("nhs_herbot.load_csv.pd.read_csv") as mock:
         yield mock
 
 
@@ -36,15 +36,11 @@ class TestLoadCsvData:
         """
         Test that the read csv function is called with the expected arguments
         """
-        expected_na_values = [""]
         expected_skip_blank_lines = True
         expected_filepath_or_buffer = "test"
 
-        mocker.patch("nhs_herbot.data_in.load_csv.NA_VALUES", new=expected_na_values)
-
         load_csv_data("test", filepath_or_buffer="test")
         mock_read_csv.assert_called_with(
-            na_values=expected_na_values,
             skip_blank_lines=expected_skip_blank_lines,
             filepath_or_buffer=expected_filepath_or_buffer,
         )
@@ -78,7 +74,7 @@ class TestLoadCsvData:
         """
         Test that the logger is called with the expected message
         """
-        mock_logger = mocker.patch("nhs_herbot.data_in.load_csv.logger")
+        mock_logger = mocker.patch("nhs_herbot.load_csv.logger")
         load_csv_data("test", filepath_or_buffer="test")
         mock_logger.info.assert_called_with("Loading test data from: test")
 
@@ -98,7 +94,7 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.data_in.load_csv.pd.read_csv", return_value=mock_df)
+        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
 
         result = load_devices_datasets(datasets)
         assert set(result.keys()) == set(datasets.keys())
@@ -113,7 +109,7 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.data_in.load_csv.pd.read_csv", return_value=mock_df)
+        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
 
         result = load_devices_datasets(datasets)
         for dataset in result.values():
@@ -129,7 +125,7 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.data_in.load_csv.pd.read_csv", return_value=mock_df)
+        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
 
         result = load_devices_datasets(datasets)
         for dataset in result.values():
@@ -145,7 +141,7 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.data_in.load_csv.pd.read_csv", return_value=mock_df)
+        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
 
         result = load_devices_datasets(datasets)
         for dataset in result.values():
@@ -168,7 +164,7 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.data_in.load_csv.pd.read_csv", return_value=mock_df)
+        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
 
         result = load_devices_datasets(datasets)
         dataset = result["test1"]

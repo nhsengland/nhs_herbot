@@ -8,10 +8,7 @@ from typing import Literal, Optional
 import pandas as pd
 from loguru import logger
 
-from nhs_herbot.errors import (
-    MergeColumnsNotFoundError,
-    MergeWarning,
-)
+from nhs_herbot.errors import MergeColumnsNotFoundError, MergeWarning
 
 MergeHow = Literal["left", "right", "outer", "inner"]
 
