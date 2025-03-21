@@ -1,5 +1,5 @@
 """
-Tests for nhs_herbot/data_in/load_csv.py
+Tests for nhs_herbot/load_csv.py
 """
 
 from unittest.mock import patch
