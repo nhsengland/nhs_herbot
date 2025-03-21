@@ -19,8 +19,7 @@ mergedeep==1.3.4
 mkdocs==1.6.1
 mkdocs-get-deps==0.2.0
 mypy-extensions==1.0.0
-# Editable Git install with no remote (nhs_herbot==0.1.0)
--e /home/jowi60/direct_commissioning/nhs-herbot
+-e git+https://github.com/nhsengland/HERBOT.git@0ebf600819f5dea985be4daef0615a9bee199c9b#egg=nhs_herbot
 nodeenv==1.9.1
 numpy==2.2.3
 packaging==24.2
