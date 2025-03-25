@@ -2,7 +2,7 @@ black
 flake8
 isort
 loguru
--e git+https://github.com/nhsengland/HERBOT.git@0ebf600819f5dea985be4daef0615a9bee199c9b#egg=nhs_herbot
+-e .
 numpy
 pandas
 pre_commit
