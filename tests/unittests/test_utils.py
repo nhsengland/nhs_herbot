@@ -538,14 +538,7 @@ class TestTimeit:
     Tests for the utils.timeit decorator
     """
 
-    @pytest.fixture
-    def mock_logger(self, mocker):
-        """
-        Fixture to mock the logger
-        """
-        return mocker.patch("nhs_herbot.utils.logger")
-
-    def test_timeit_decorator(self, mock_logger):
+    def test_timeit_decorator(self, mock_debug):
         """
         Test the timeit decorator to ensure it logs the execution time
         """
@@ -557,11 +550,11 @@ class TestTimeit:
 
         result = sample_function()
         assert result == "result"
-        assert mock_logger.debug.called
-        log_message = mock_logger.debug.call_args[0][0]
+        assert mock_debug.called
+        log_message = mock_debug.call_args[0][0]
         assert re.match(r"Function 'sample_function' executed in \d+\.\d+ s", log_message)
 
-    def test_timeit_decorator_with_args(self, mock_logger):
+    def test_timeit_decorator_with_args(self, mock_debug):
         """
         Test the timeit decorator with a function that takes arguments
         """
@@ -573,11 +566,11 @@ class TestTimeit:
 
         result = sample_function(1, 2)
         assert result == 3
-        assert mock_logger.debug.called
-        log_message = mock_logger.debug.call_args[0][0]
+        assert mock_debug.called
+        log_message = mock_debug.call_args[0][0]
         assert re.match(r"Function 'sample_function' executed in \d+\.\d+ s", log_message)
 
-    def test_timeit_decorator_with_kwargs(self, mock_logger):
+    def test_timeit_decorator_with_kwargs(self, mock_debug):
         """
         Test the timeit decorator with a function that takes keyword arguments
         """
@@ -589,8 +582,8 @@ class TestTimeit:
 
         result = sample_function(1, y=2)
         assert result == 3
-        assert mock_logger.debug.called
-        log_message = mock_logger.debug.call_args[0][0]
+        assert mock_debug.called
+        log_message = mock_debug.call_args[0][0]
         assert re.match(r"Function 'sample_function' executed in \d+\.\d+ s", log_message)
 
 
