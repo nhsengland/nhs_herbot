@@ -321,8 +321,8 @@ def get_datetime_columns(data: pd.DataFrame) -> List[pd.Timestamp]:
 
 def calc_change_from_previous_month_column(
     monthly_summary_table: pd.DataFrame,
-    most_recent_col: Optional[str | pd.Timestamp] = None,
-    second_most_recent_col: Optional[str | pd.Timestamp] = None,
+    most_recent_col: Optional[Union[str, pd.Timestamp]] = None,
+    second_most_recent_col: Optional[Union[str, pd.Timestamp]] = None,
 ) -> pd.DataFrame:
     """
     Calculate the change from the previous month for the most recent and second most recent columns

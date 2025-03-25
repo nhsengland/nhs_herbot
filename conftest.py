@@ -2,7 +2,7 @@
 This module contains fixtures that are used by the test modules in the tests/ directory.
 """
 
-from typing import Any, Dict, Literal
+from typing import Any, Dict, Literal, Union
 import warnings
 import pandas as pd
 import pytest
@@ -12,11 +12,9 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*platfo
 Logger = Any
 
 MockLoggerDict = Dict[
-    Literal["info"]
-    | Literal["error"]
-    | Literal["warning"]
-    | Literal["success"]
-    | Literal["debug"],
+    Union[
+        Literal["info"], Literal["error"], Literal["warning"], Literal["success"], Literal["debug"]
+    ],
     Logger,
 ]
 

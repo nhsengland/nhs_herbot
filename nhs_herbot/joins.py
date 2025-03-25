@@ -3,7 +3,7 @@ Functions for processing the datasets for the pipeline.
 """
 
 import warnings
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import pandas as pd
 from loguru import logger
@@ -63,7 +63,7 @@ def join_datasets(
     left_on,
     right_on,
     how: MergeHow = "left",
-    check_merge: bool | Literal["keep"] = True,
+    check_merge: Union[bool, Literal["keep"]] = True,
     indicator_override: Optional[str] = None,
     **merge_kwargs,
 ) -> pd.DataFrame:
