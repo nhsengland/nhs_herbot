@@ -1,8 +1,6 @@
 """
-Tests for nhs_herbot/load_csv.py
+Tests for nhs_herbot/data_in/load_csv.py
 """
-
-from unittest.mock import patch
 
 import pandas as pd
 import pytest
@@ -15,9 +13,8 @@ from nhs_herbot.load_csv import (
 
 
 @pytest.fixture
-def mock_read_csv():
-    with patch("nhs_herbot.load_csv.pd.read_csv") as mock:
-        yield mock
+def mock_read_csv(mocker):
+    return mocker.patch("nhs_herbot.load_csv.pd.read_csv")
 
 
 class TestLoadCsvData:
@@ -36,11 +33,13 @@ class TestLoadCsvData:
         """
         Test that the read csv function is called with the expected arguments
         """
+        expected_na_values = [""]
         expected_skip_blank_lines = True
         expected_filepath_or_buffer = "test"
 
-        load_csv_data("test", filepath_or_buffer="test")
+        load_csv_data("test", filepath_or_buffer="test", na_values=expected_na_values)
         mock_read_csv.assert_called_with(
+            na_values=expected_na_values,
             skip_blank_lines=expected_skip_blank_lines,
             filepath_or_buffer=expected_filepath_or_buffer,
         )
@@ -70,13 +69,12 @@ class TestLoadCsvData:
         with pytest.raises(NoFilePathProvidedError):
             load_csv_data("test")
 
-    def test_logger_called(self, mocker, mock_read_csv):
+    def test_logger_called(self, mock_info, mock_read_csv):
         """
         Test that the logger is called with the expected message
         """
-        mock_logger = mocker.patch("nhs_herbot.load_csv.logger")
         load_csv_data("test", filepath_or_buffer="test")
-        mock_logger.info.assert_called_with("Loading test data from: test")
+        mock_info.assert_called_with("Loading test data from: test")
 
 
 class TestLoadDevicesDatasets:
@@ -84,7 +82,7 @@ class TestLoadDevicesDatasets:
     Tests for load_devices_datasets
     """
 
-    def test_load_devices_datasets(self, mocker):
+    def test_load_devices_datasets(self, mock_read_csv):
         """
         Test that the function returns a dictionary with the expected keys
         """
@@ -94,12 +92,12 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
+        mock_read_csv.return_value = mock_df
 
         result = load_devices_datasets(datasets)
         assert set(result.keys()) == set(datasets.keys())
 
-    def test_data(self, mocker):
+    def test_data(self, mock_read_csv):
         """
         Test that the function returns a dictionary with the expected keys
         """
@@ -109,13 +107,13 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
+        mock_read_csv.return_value = mock_df
 
         result = load_devices_datasets(datasets)
         for dataset in result.values():
             assert "data" in dataset
 
-    def test_data_shape(self, mocker):
+    def test_data_shape(self, mock_read_csv):
         """
         Test that the function returns a dictionary with the expected keys
         """
@@ -125,13 +123,13 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
+        mock_read_csv.return_value = mock_df
 
         result = load_devices_datasets(datasets)
         for dataset in result.values():
             assert dataset["data"].shape == (2, 2)
 
-    def test_data_type(self, mocker):
+    def test_data_type(self, mock_read_csv):
         """
         Test that the function returns a dictionary with the expected keys
         """
@@ -141,7 +139,7 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
+        mock_read_csv.return_value = mock_df
 
         result = load_devices_datasets(datasets)
         for dataset in result.values():
@@ -154,7 +152,7 @@ class TestLoadDevicesDatasets:
         with pytest.raises(NoDatasetsProvidedError):
             load_devices_datasets({})
 
-    def test_removes_data(self, mocker):
+    def test_removes_data(self, mock_read_csv):
         """
         Test that the function removes the "data" key from the datasets dictionary
         and then overwrites it with the loaded DataFrame
@@ -164,7 +162,7 @@ class TestLoadDevicesDatasets:
         }
 
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-        mocker.patch("nhs_herbot.load_csv.pd.read_csv", return_value=mock_df)
+        mock_read_csv.return_value = mock_df
 
         result = load_devices_datasets(datasets)
         dataset = result["test1"]
