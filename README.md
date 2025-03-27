@@ -6,6 +6,10 @@
 [![licence: OGL3](https://img.shields.io/badge/Licence-OGL3-darkgrey "licence: Open Government Licence 3")](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
 [![JIRA EPIC: DC-908](https://img.shields.io/badge/JIRA-DC--908-purple?link=https%3A%2F%2Fnhsd-jira.digital.nhs.uk%2Fbrowse%2FDC-908)](https://nhsd-jira.digital.nhs.uk/browse/DC-908 "DC-908")
 [![Tests and Linting](https://github.com/nhsengland/nhs_herbot/actions/workflows/python-package.yml/badge.svg?branch=main)](https://github.com/nhsengland/nhs_herbot/actions/workflows/python-package.yml)
+[![Python 3.9](https://img.shields.io/badge/Python-3.9-blue)](https://www.python.org/downloads/release/python-390/)
+[![Python 3.10](https://img.shields.io/badge/Python-3.10-blue)](https://www.python.org/downloads/release/python-3100/)
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-blue)](https://www.python.org/downloads/release/python-3110/)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/downloads/release/python-3120/)
 
 Hi there, I am HERBOT (prn Herbert)! Healthcare's Handy, Easy, and Reusable Box of Tricks!
 
