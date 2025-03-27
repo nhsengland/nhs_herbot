@@ -404,7 +404,7 @@ def sort_by_priority(data: pd.DataFrame, column: str, priorities: List[str]) -> 
 def convert_to_numeric_column(column: pd.Series) -> pd.Series:
     """
     Convert a column to numeric, removing any commas and converting to float,
-    coercing any errors"
+    coercing any errors
 
     Parameters
     ----------
