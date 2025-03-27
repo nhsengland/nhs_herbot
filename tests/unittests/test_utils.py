@@ -427,73 +427,6 @@ class TestSortStringListWithDates:
         assert result == expected
 
 
-class TestCalcChangeFromPreviousMonthColumn:
-    """
-    Tests for the utils.calc_change_from_previous_month_column function
-    """
-
-    @pytest.fixture()
-    def monthly_summary_table(self) -> pd.DataFrame:
-        """
-        Returns a dataframe with datetime columns and some data
-        """
-        data = {
-            pd.Timestamp("2023-01-01"): [100, 200, 300],
-            pd.Timestamp("2023-02-01"): [110, 210, 310],
-            pd.Timestamp("2023-03-01"): [120, 220, 320],
-        }
-        df = pd.DataFrame(data)
-        return df
-
-    def test_default_columns(self, monthly_summary_table):
-        """
-        Test the calc_change_from_previous_month_column function with default columns
-        """
-        result_df = utils.calc_change_from_previous_month_column(monthly_summary_table)
-        expected_change = [10, 10, 10]
-        assert list(result_df["change_from_previous_month"]) == expected_change
-
-    def test_specified_columns(self, monthly_summary_table):
-        """
-        Test the calc_change_from_previous_month_column function with specified columns
-        """
-        result_df = utils.calc_change_from_previous_month_column(
-            monthly_summary_table,
-            most_recent_col=pd.Timestamp("2023-02-01"),
-            second_most_recent_col=pd.Timestamp("2023-01-01"),
-        )
-        expected_change = [10, 10, 10]
-        assert list(result_df["change_from_previous_month"]) == expected_change
-
-    def test_missing_columns(self, monthly_summary_table):
-        """
-        Test the calc_change_from_previous_month_column function with missing columns
-        """
-        match = re.escape(
-            "Columns were not found in the dataset. MISSING COLUMNS: MOST_RECENT_COL: "
-            "['non_existent_col']"
-        )
-        with pytest.raises(ColumnsNotFoundError, match=match):
-            utils.calc_change_from_previous_month_column(
-                monthly_summary_table,
-                most_recent_col="non_existent_col",
-                second_most_recent_col=pd.Timestamp("2023-01-01"),
-            )
-
-    def test_with_nan_values(self):
-        """
-        Test the calc_change_from_previous_month_column function with NaN values
-        """
-        data = {
-            pd.Timestamp("2023-01-01"): [100, None, 300],
-            pd.Timestamp("2023-02-01"): [110, 210, None],
-        }
-        df = pd.DataFrame(data)
-        result_df = utils.calc_change_from_previous_month_column(df)
-        expected_change = [10, 210, -300]
-        assert list(result_df["change_from_previous_month"]) == expected_change
-
-
 class TestReplaceListElementWithList:
     """
     Tests for the utils.replace_list_element_with_list function
@@ -651,6 +584,55 @@ class TestSortByPriority:
         priorities = ["high", "medium", "low"]
         with pytest.raises(KeyError):
             utils.sort_by_priority(df, "priority_column", priorities)
+
+
+class TestConvertToNumericColumn:
+    """
+    Tests for the utils.convert_to_numeric_column function
+    """
+
+    @pytest.mark.parametrize(
+        ("input_data", "expected_type"),
+        [
+            (["1", "2", "3", "4", "5"], "int64"),
+            (["1.0", "2.0", "3.0", "4.0", "5.0"], "float64"),
+            (["1", "2", "3", "4", "5.0"], "float64"),
+            (["1.0", "2.0", "3.0", "4.0", "5"], "float64"),
+        ],
+    )
+    def test_converts_numbers_to_type(self, input_data, expected_type):
+        """
+        Test the convert_to_numeric_column function with a column of numbers
+        """
+        data = pd.DataFrame({"input": input_data})
+        data["actual"] = utils.convert_to_numeric_column(data["input"])
+        actual_type = data["actual"].dtype
+        assert actual_type == expected_type
+
+    @pytest.mark.parametrize(
+        "input_data, expected_data",
+        [
+            ([1, 2, 3, 4, 5], pd.Series([1, 2, 3, 4, 5])),
+            ([1.0, 2.0, 3.0, 4.0, 5.0], pd.Series([1.0, 2.0, 3.0, 4.0, 5.0])),
+            (["1", "2", "3", "4", "5"], pd.Series([1, 2, 3, 4, 5])),
+            (["1.0", "2.0", "3.0", "4.0", "5.0"], pd.Series([1.0, 2.0, 3.0, 4.0, 5.0])),
+            (
+                ["1,000", "2,000", "3,000", "4,000", "5,000"],
+                pd.Series([1000, 2000, 3000, 4000, 5000]),
+            ),
+            (
+                ["1,000.0", "2,000.0", "3,000.0", "4,000.0", "5,000.0"],
+                pd.Series([1000.0, 2000.0, 3000.0, 4000.0, 5000.0]),
+            ),
+        ],
+    )
+    def test_converts_to_values(self, input_data, expected_data):
+        """
+        Test the convert_to_numeric_column function with a column of numbers
+        """
+        data = pd.DataFrame({"input": input_data})
+        data["actual"] = utils.convert_to_numeric_column(data["input"])
+        pd.testing.assert_series_equal(data["actual"], expected_data, check_names=False)
 
 
 if __name__ == "__main__":
