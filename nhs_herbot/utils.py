@@ -7,7 +7,7 @@ financial dates, parsing date strings, sorting lists with dates, and more.
 import time
 import warnings
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -417,3 +417,77 @@ def convert_to_numeric_column(column: pd.Series) -> pd.Series:
         The converted column
     """
     return pd.to_numeric(column.astype(str).str.replace(",", ""), errors="coerce")
+
+
+def format_numeric_value(
+    value: Union[float, int],
+    decimals: int = 2,
+    thousands: str = ",",
+    prefix: Literal["£", "$", "€", "", str] = "",
+    suffix: str = "",
+) -> str:
+    """
+    Format a numeric value to a string with the specified number of decimal places,
+    thousands separator, and prefix.
+
+    Parameters
+    ----------
+    value : Union[float, int]
+        The numeric value to format
+    decimals : int, optional
+        The number of decimal places to display, by default 2
+    thousands : str, optional
+        The thousands separator, by default ","
+    prefix : Literal["£", "$", "€", "", str], optional
+        The prefix to add to the formatted string, by default ""
+    suffix : str, optional
+        The suffix to add to the formatted string, by default ""
+
+    Returns
+    -------
+    str
+        The formatted value as a string
+    """
+    if isinstance(value, (float, int)) and pd.notnull(value):
+        return f"{prefix}{value:,.{decimals}f}{suffix}".replace(",", thousands)
+    if pd.isna(value):
+        return value
+    return value
+
+
+def format_numeric_column(
+    column: pd.Series,
+    decimals: int = 2,
+    thousands: str = ",",
+    prefix: Literal["£", "$", "€", "", str] = "",
+    suffix: str = "",
+) -> pd.Series:
+    """
+    Format a numeric column to a string with the specified number of decimal places,
+    thousands separator, and prefix.
+
+    Parameters
+    ----------
+    column : pd.Series
+        The column to format
+    decimals : int, optional
+        The number of decimal places to display, by default 2
+    thousands : str, optional
+        The thousands separator, by default ","
+    prefix : Literal["£", "$", "€", "", str], optional
+        The prefix to add to the formatted string, by default ""
+    suffix : str, optional
+        The suffix to add to the formatted string, by default ""
+
+    Returns
+    -------
+    pd.Series
+        The formatted column
+    """
+    return column.apply(
+        format_numeric_value,
+        decimals=decimals,
+        thousands=thousands,
+        prefix=prefix,
+        suffix=suffix,
+    )

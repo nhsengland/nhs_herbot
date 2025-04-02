@@ -6,11 +6,12 @@ from datetime import datetime
 import re
 import time
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from nhs_herbot import utils
-from nhs_herbot.errors import ColumnsNotFoundError, DataTypeNotFoundWarning, InvalidMonthError
+from nhs_herbot import DataTypeNotFoundWarning, InvalidMonthError
 
 
 class TestNormaliseColumnNames:
@@ -633,6 +634,118 @@ class TestConvertToNumericColumn:
         data = pd.DataFrame({"input": input_data})
         data["actual"] = utils.convert_to_numeric_column(data["input"])
         pd.testing.assert_series_equal(data["actual"], expected_data, check_names=False)
+
+
+class TestFormatNumericValue:
+    """
+    Tests for the utils.format_numeric_value function
+    """
+
+    @pytest.mark.parametrize(
+        "value, decimals, thousands, prefix, suffix, expected",
+        [
+            (1234.5678, 2, ",", "£", "", "£1,234.57"),
+            (1234.5678, 0, ",", "$", "", "$1,235"),
+            (1234.5678, 3, ".", "", " USD", "1.234.568 USD"),
+            (1234.5678, 1, ",", "", "%", "1,234.6%"),
+            (1234, 2, ",", "€", "", "€1,234.00"),
+            (None, 2, ",", "", "", None),
+            ("invalid", 2, ",", "", "", "invalid"),
+        ],
+    )
+    def test_format_numeric_value(self, value, decimals, thousands, prefix, suffix, expected):
+        """
+        Test the format_numeric_value function with various inputs
+        """
+        result = utils.format_numeric_value(
+            value=value, decimals=decimals, thousands=thousands, prefix=prefix, suffix=suffix
+        )
+        assert result == expected
+
+
+class TestFormatNumericColumn:
+    """
+    Tests for the utils.format_numeric_column function
+    """
+
+    @pytest.mark.parametrize(
+        "input_data, decimals, thousands, prefix, suffix, expected_data",
+        [
+            (
+                [1234.5678, 5678.1234],
+                2,
+                ",",
+                "£",
+                "",
+                pd.Series(["£1,234.57", "£5,678.12"]),
+            ),
+            (
+                [1234.5678, 5678.1234],
+                0,
+                ",",
+                "$",
+                "",
+                pd.Series(["$1,235", "$5,678"]),
+            ),
+            (
+                [1234.5678, 5678.1234],
+                3,
+                ".",
+                "",
+                " USD",
+                pd.Series(["1.234.568 USD", "5.678.123 USD"]),
+            ),
+            (
+                [1234.5678, 5678.1234],
+                1,
+                ",",
+                "",
+                "%",
+                pd.Series(["1,234.6%", "5,678.1%"]),
+            ),
+            (
+                [1234, 5678],
+                2,
+                ",",
+                "€",
+                "",
+                pd.Series(["€1,234.00", "€5,678.00"]),
+            ),
+            (
+                [None, 5678],
+                2,
+                ",",
+                "",
+                "",
+                pd.Series([None, "5,678.00"]),
+            ),
+            (
+                ["invalid", 5678],
+                2,
+                ",",
+                "",
+                "",
+                pd.Series(["invalid", "5,678.00"]),
+            ),
+        ],
+    )
+    def test_format_numeric_column(
+        self, input_data, decimals, thousands, prefix, suffix, expected_data
+    ):
+        """
+        Test the format_numeric_column function with various inputs
+        """
+        input_series = pd.Series(input_data)
+        result_series = utils.format_numeric_column(
+            column=input_series,
+            decimals=decimals,
+            thousands=thousands,
+            prefix=prefix,
+            suffix=suffix,
+        )
+        pd.testing.assert_series_equal(
+            result_series, expected_data,
+        )
 
 
 if __name__ == "__main__":
