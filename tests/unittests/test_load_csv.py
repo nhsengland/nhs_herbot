@@ -5,8 +5,8 @@ Tests for nhs_herbot/data_in/load_csv.py
 import pandas as pd
 import pytest
 
-from nhs_herbot.errors import NoDatasetsProvidedError, NoFilePathProvidedError
-from nhs_herbot.load_csv import (
+from nhs_herbot import NoDatasetsProvidedError, NoFilePathProvidedError
+from nhs_herbot import (
     load_csv_data,
     load_devices_datasets,
 )
@@ -14,7 +14,7 @@ from nhs_herbot.load_csv import (
 
 @pytest.fixture
 def mock_read_csv(mocker):
-    return mocker.patch("nhs_herbot.load_csv.pd.read_csv")
+    return mocker.patch("nhs_herbot.pd.read_csv")
 
 
 class TestLoadCsvData:

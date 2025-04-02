@@ -6,7 +6,7 @@ import re
 import warnings
 import pytest
 
-from nhs_herbot.errors import (
+from nhs_herbot import (
     ColumnsNotFoundError,
     DataTypeNotFoundWarning,
     ExceptionRaisedIncorrectlyError,

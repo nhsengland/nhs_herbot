@@ -9,7 +9,7 @@ import pytest
 from loguru import logger
 
 from nhs_herbot import joins
-from nhs_herbot.errors import MergeColumnsNotFoundError, MergeWarning
+from nhs_herbot import MergeColumnsNotFoundError, MergeWarning
 
 # from nhs_herbot import processing
 
@@ -101,7 +101,7 @@ class TestCheckMergeHealth:
         Test that the function raises a warning the correct number of times when a bad merge is
         found.
         """
-        mock_warn = mocker.patch("nhs_herbot.joins.warnings.warn")
+        mock_warn = mocker.patch("nhs_herbot.warnings.warn")
 
         joins.check_merge_health(merged_df)
 
