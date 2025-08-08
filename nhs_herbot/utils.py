@@ -98,7 +98,7 @@ def un_normalise_column_names(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def convert_values_to(
-    value: Any, match: Optional[List[Any]] = None, to: Any = "DEV02", invert_match: bool = False
+    value: Any, match: List[Any] | Any, to: Any, invert_match: bool = False
 ) -> Any:
     """
     If value matches the match list then it is converted to the provided "to" value. If invert_match
@@ -110,9 +110,9 @@ def convert_values_to(
     value : Any
         Value to convert if they are a match
     match : List[Any], optional
-        List of values to match the value to, by default ["DEV34", "DEV35"]
+        List of values to match the value to
     to : Any, optional
-        Value to convert matched values to, by default "DEV02"
+        Value to convert matched values to
     invert_match : bool, optional
         Invert the match, and convert values that do not match the provided match list, defaults to
         False
@@ -122,7 +122,7 @@ def convert_values_to(
     Any
         Converted value or current value if not a match
     """
-    match = ["DEV34", "DEV35"] if not match else match
+    match = match if isinstance(match, list) else [match]
     if invert_match:
         return to if value not in match else value
     return to if value in match else value
@@ -163,8 +163,8 @@ def convert_fin_dates(fin_month: int, fin_year: int) -> pd.Timestamp:
 
 def convert_fin_dates_vectorised(
     df: pd.DataFrame,
-    fin_month_col: Optional[str] = "cln_activity_month",
-    fin_year_col: Optional[str] = "upd_activity_year",
+    fin_month_col: str,
+    fin_year_col: str,
 ) -> pd.Series:
     """
     Convert financial dates in a DataFrame to a pandas datetime, assuming the financial year starts
@@ -177,12 +177,11 @@ def convert_fin_dates_vectorised(
     ----------
     df : pd.DataFrame
         DataFrame containing financial month and year columns
-    fin_month_col : str, optional
-        Name of the column containing financial months, assumes 1 is April and 12 is March, by
-        default "cln_activity_month"
+    fin_month_col : str
+        Name of the column containing financial months, assumes 1 is April and 12 is March
     fin_year_col : str
         Name of the column containing financial years, in the format CCYY1YY2, e.g. 202425 is
-        equivalent to 2024-2025, by default "upd_activity_year"
+        equivalent to 2024-2025
 
     Returns
     -------

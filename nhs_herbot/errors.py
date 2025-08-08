@@ -148,6 +148,30 @@ class InvalidMonthError(LoggedException):
     """
 
 
+class DatabaseConnectionError(LoggedException):
+    """
+    Exception raised when database connection fails.
+    """
+
+
+class SQLExecutionError(LoggedException):
+    """
+    Exception raised when SQL query execution fails.
+    """
+
+
+class InvalidSQLParametersError(LoggedException):
+    """
+    Exception raised when invalid parameters are provided to SQL functions.
+    """
+
+
+class InvalidParametersError(LoggedException):
+    """
+    Exception raised when invalid parameters are provided to functions.
+    """
+
+
 class PathNotFoundError(LoggedException):
     """
     Exception raised when the path is not found.

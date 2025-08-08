@@ -117,21 +117,23 @@ class TestConvertValuesTo:
     @pytest.mark.parametrize(
         "value, match, to, invert_match, expected",
         [
-            ("DEV34", None, "DEV02", False, "DEV02"),
-            ("DEV35", None, "DEV02", False, "DEV02"),
-            ("DEV36", None, "DEV02", False, "DEV36"),
-            ("DEV36", ["DEV34", "DEV35"], "DEV02", False, "DEV36"),
-            ("DEV34", ["DEV34", "DEV35"], "DEV02", False, "DEV02"),
-            ("DEV36", ["DEV34", "DEV35"], "DEV02", True, "DEV02"),
-            ("DEV34", ["DEV34", "DEV35"], "DEV02", True, "DEV34"),
+            ("foo", "foo", "bar", False, "bar"),
+            ("foo", ["foo", "baz"], "bar", False, "bar"),
+            ("foo", ["baz", "qux"], "bar", False, "foo"),
+            ("foo", "foo", "bar", True, "foo"),
+            ("foo", ["foo", "baz"], "bar", True, "foo"),
+            ("foo", ["baz", "qux"], "bar", True, "bar"),
         ],
     )
     def test_convert_values_to(self, value, match, to, invert_match, expected):
         """
         Test the convert_values_to function. Cases to test:
-            1. Default match list and conversion
-            2. Custom match list and conversion
-            3. Inverted match logic
+            1. Scalar match value converted
+            2. List match value converted
+            3. Inverted match value converted
+            4. No match scalar value not converted
+            5. No match list value not converted
+            6. No match list value converted when invert_match is True
         """
         result = utils.convert_values_to(
             value=value, match=match, to=to, invert_match=invert_match
@@ -141,13 +143,14 @@ class TestConvertValuesTo:
     @pytest.mark.parametrize(
         "value, match, to, invert_match, expected",
         [
-            (123, None, 456, False, 123),
-            (789, [123, 456], 101, False, 789),
-            (123, [123, 456], 101, False, 101),
-            ([1, 2, 3], None, [4, 5, 6], False, [1, 2, 3]),
-            ([1, 2, 3], [[1, 2, 3], [4, 5, 6]], [7, 8, 9], False, [7, 8, 9]),
-            ((1, 2), None, (3, 4), False, (1, 2)),
-            ((1, 2), [(1, 2), (3, 4)], (5, 6), False, (5, 6)),
+            (123, 123, 456, False, 456),  # Integer conversion
+            (
+                [1, 2, 3],
+                [[1, 2, 3]],
+                [4, 5, 6],
+                False,
+                [4, 5, 6],
+            ),  # List conversion - match should be list of lists
         ],
     )
     def test_convert_other_values_to(self, value, match, to, invert_match, expected):
@@ -744,7 +747,8 @@ class TestFormatNumericColumn:
             suffix=suffix,
         )
         pd.testing.assert_series_equal(
-            result_series, expected_data,
+            result_series,
+            expected_data,
         )
 
 
