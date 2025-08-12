@@ -174,7 +174,21 @@ normalised_data = herbot.normalise_column_names(data)
 
 # Connect to SQL Server and query data
 with herbot.SQLServer(server='your_server', database='your_db') as sql:
+    # Read data
     results = sql.query('SELECT * FROM your_table')
+    
+    # Write data
+    sql.write_dataframe(data, 'new_table', if_exists='replace')
+    
+    # Execute non-query operations
+    rows_affected = sql.execute_non_query('UPDATE table SET status = ?', {'status': 'processed'})
+    
+    # Bulk insert for large datasets
+    sql.bulk_insert(large_df, 'bulk_table', batch_size=5000)
+    
+    # Check if table exists
+    if sql.table_exists('target_table'):
+        print("Table exists!")
 
 # Join datasets
 joined_data = herbot.join_datasets(left_df, right_df, join_columns=['id'])
@@ -187,7 +201,10 @@ date_data = herbot.convert_fin_dates(fin_month=4, fin_year=2024)
 
 - **Data Loading:** CSV file loading with custom error handling
 - **Data Processing:** Column name normalisation and data type conversion
-- **Database Operations:** SQL Server connectivity and querying
+- **Database Operations:** SQL Server connectivity, querying, and data writing
+  - Read operations: Execute SELECT queries and load results into DataFrames
+  - Write operations: Insert DataFrames, execute non-queries, bulk operations
+  - Table management: Create tables, check existence, transaction support
 - **Data Joining:** Flexible dataset joining with validation
 - **Date Utilities:** Financial year date conversions and parsing
 - **Error Handling:** Custom exceptions for robust data pipelines
