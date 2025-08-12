@@ -4,12 +4,11 @@ Tests for nhs_herbot/joins.py
 
 from contextlib import nullcontext
 
+from loguru import logger
 import pandas as pd
 import pytest
-from loguru import logger
 
-from nhs_herbot import joins
-from nhs_herbot import MergeColumnsNotFoundError, MergeWarning
+from nhs_herbot import MergeColumnsNotFoundError, MergeWarning, joins
 
 # from nhs_herbot import processing
 

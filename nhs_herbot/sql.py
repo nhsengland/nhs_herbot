@@ -5,15 +5,11 @@ Simple SQL Server database interaction module.
 from pathlib import Path
 from typing import Dict, Optional, Union
 
+from loguru import logger
 import pandas as pd
 import pyodbc
-from loguru import logger
 
-from nhs_herbot.errors import (
-    DatabaseConnectionError,
-    InvalidParametersError,
-    SQLExecutionError,
-)
+from nhs_herbot.errors import DatabaseConnectionError, InvalidParametersError, SQLExecutionError
 
 
 class SQLServer:

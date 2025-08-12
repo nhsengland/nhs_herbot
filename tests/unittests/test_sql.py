@@ -2,15 +2,12 @@
 Tests for nhs_herbot/sql.py SQLServer class
 """
 
-import tempfile
-from pathlib import Path
-
 import pandas as pd
-import pytest
 import pyodbc
+import pytest
 
-from nhs_herbot.sql import SQLServer
 from nhs_herbot.errors import DatabaseConnectionError, InvalidParametersError, SQLExecutionError
+from nhs_herbot.sql import SQLServer
 
 
 class TestSQLServer:
@@ -95,7 +92,7 @@ class TestSQLServer:
         with pytest.raises(SQLExecutionError):
             sql.query("SELECT * FROM test")
 
-    def test_query_from_file_success(self, mocker):
+    def test_query_from_file_success(self, mocker, tmp_path):
         """Test successful query from file"""
         mock_conn = mocker.Mock()
         mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
@@ -104,17 +101,14 @@ class TestSQLServer:
 
         sql_content = "SELECT * FROM {table_name}"
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".sql", delete=False) as f:
-            f.write(sql_content)
-            temp_path = f.name
+        # Create a temporary SQL file using pytest's tmp_path fixture
+        temp_file = tmp_path / "test_query.sql"
+        temp_file.write_text(sql_content)
 
-        try:
-            sql = SQLServer("server", "user", "database")
-            result = sql.query_from_file(temp_path, {"table_name": "test_table"})
+        sql = SQLServer("server", "user", "database")
+        result = sql.query_from_file(str(temp_file), {"table_name": "test_table"})
 
-            assert result.equals(mock_df)
-        finally:
-            Path(temp_path).unlink()
+        assert result.equals(mock_df)
 
     def test_query_from_file_not_found(self, mocker):
         """Test query from non-existent file"""
@@ -255,7 +249,7 @@ class TestSQLServer:
 
         mock_conn.rollback.assert_called_once()
 
-    def test_execute_non_query_from_file_success(self, mocker):
+    def test_execute_non_query_from_file_success(self, mocker, tmp_path):
         """Test successful non-query from file"""
         mock_conn = mocker.Mock()
         mock_cursor = mocker.Mock()
@@ -265,18 +259,15 @@ class TestSQLServer:
 
         sql_content = "INSERT INTO {table} VALUES (1, 2)"
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".sql", delete=False) as f:
-            f.write(sql_content)
-            temp_path = f.name
+        # Create a temporary SQL file using pytest's tmp_path fixture
+        temp_file = tmp_path / "test_insert.sql"
+        temp_file.write_text(sql_content)
 
-        try:
-            sql = SQLServer("server", "user", "database")
-            result = sql.execute_non_query_from_file(temp_path, {"table": "test_table"})
+        sql = SQLServer("server", "user", "database")
+        result = sql.execute_non_query_from_file(str(temp_file), {"table": "test_table"})
 
-            assert result == 2
-            mock_cursor.execute.assert_called_once_with("INSERT INTO test_table VALUES (1, 2)")
-        finally:
-            Path(temp_path).unlink()
+        assert result == 2
+        mock_cursor.execute.assert_called_once_with("INSERT INTO test_table VALUES (1, 2)")
 
     def test_bulk_insert_success(self, mocker):
         """Test successful bulk insert"""

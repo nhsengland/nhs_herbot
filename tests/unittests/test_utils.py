@@ -6,12 +6,10 @@ from datetime import datetime
 import re
 import time
 
-import numpy as np
 import pandas as pd
 import pytest
 
-from nhs_herbot import utils
-from nhs_herbot import DataTypeNotFoundWarning, InvalidMonthError
+from nhs_herbot import DataTypeNotFoundWarning, InvalidMonthError, utils
 
 
 class TestNormaliseColumnNames:

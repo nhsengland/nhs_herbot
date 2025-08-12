@@ -5,8 +5,9 @@ Tests for nhs_herbot/data_in/load_csv.py
 import pandas as pd
 import pytest
 
-from nhs_herbot import NoDatasetsProvidedError, NoFilePathProvidedError
 from nhs_herbot import (
+    NoDatasetsProvidedError,
+    NoFilePathProvidedError,
     load_csv_data,
     load_devices_datasets,
 )

@@ -4,14 +4,14 @@ including functions for normalizing and un-normalizing column names, converting
 financial dates, parsing date strings, sorting lists with dates, and more.
 """
 
-import time
-import warnings
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Literal, Optional, Union
+import time
+from typing import Any, Dict, List, Optional, Union
+import warnings
 
+from loguru import logger
 import numpy as np
 import pandas as pd
-from loguru import logger
 
 from nhs_herbot.errors import DataTypeNotFoundWarning, InvalidMonthError
 
@@ -98,7 +98,7 @@ def un_normalise_column_names(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def convert_values_to(
-    value: Any, match: List[Any] | Any, to: Any, invert_match: bool = False
+    value: Any, match: Union[List[Any], Any], to: Any, invert_match: bool = False
 ) -> Any:
     """
     If value matches the match list then it is converted to the provided "to" value. If invert_match
@@ -218,7 +218,7 @@ def parse_dates(
     Parameters:
         date_str (str): The date string to be parsed.
     Returns:
-        pd.Timestamp | DatetimeNaTType | datetime: The parsed date as a pandas Timestamp, NaT, or
+        Union[pd.Timestamp, pd._libs.tslibs.nattype.NaTType, datetime]: The parsed date as a pandas Timestamp, NaT, or
         datetime object.
     """
     try:
@@ -308,7 +308,7 @@ def get_datetime_columns(data: pd.DataFrame) -> List[pd.Timestamp]:
 
     Returns
     -------
-    Sequence[str | pd.Timestamp]
+    List[Union[str, pd.Timestamp]]
         The datetime columns in the data
     """
     return [col for col in data.columns if isinstance(col, pd.Timestamp)]
@@ -422,7 +422,7 @@ def format_numeric_value(
     value: Union[float, int],
     decimals: int = 2,
     thousands: str = ",",
-    prefix: Literal["£", "$", "€", "", str] = "",
+    prefix: str = "",
     suffix: str = "",
 ) -> str:
     """
@@ -437,7 +437,7 @@ def format_numeric_value(
         The number of decimal places to display, by default 2
     thousands : str, optional
         The thousands separator, by default ","
-    prefix : Literal["£", "$", "€", "", str], optional
+    prefix : str, optional
         The prefix to add to the formatted string, by default ""
     suffix : str, optional
         The suffix to add to the formatted string, by default ""
@@ -458,7 +458,7 @@ def format_numeric_column(
     column: pd.Series,
     decimals: int = 2,
     thousands: str = ",",
-    prefix: Literal["£", "$", "€", "", str] = "",
+    prefix: str = "",
     suffix: str = "",
 ) -> pd.Series:
     """
@@ -473,7 +473,7 @@ def format_numeric_column(
         The number of decimal places to display, by default 2
     thousands : str, optional
         The thousands separator, by default ","
-    prefix : Literal["£", "$", "€", "", str], optional
+    prefix : str, optional
         The prefix to add to the formatted string, by default ""
     suffix : str, optional
         The suffix to add to the formatted string, by default ""

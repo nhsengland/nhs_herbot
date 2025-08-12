@@ -25,9 +25,9 @@ DATASETS : dict
 
 from typing import Any, Dict
 
+from loguru import logger
 import pandas as pd
 import tqdm
-from loguru import logger
 
 from nhs_herbot.errors import NoDatasetsProvidedError, NoFilePathProvidedError
 

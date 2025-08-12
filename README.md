@@ -215,6 +215,46 @@ date_data = herbot.convert_fin_dates(fin_month=4, fin_year=2024)
 pytest tests/
 ```
 
+## Development
+
+### Multi-Python Version Testing with Tox
+
+This project uses [tox](https://tox.readthedocs.io/) to test across multiple Python versions (3.9-3.12) and maintain code quality.
+
+**Quick Start:**
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Format code
+tox run -e format
+
+# Run linting
+tox run -e lint
+
+# Test with current Python version
+tox run -e py312  # or py39, py310, py311
+
+# Run all environments (requires all Python versions)
+tox
+```
+
+**Available environments:**
+- `py39`, `py310`, `py311`, `py312`: Run tests with different Python versions
+- `lint`: Code quality checks (black, isort, flake8)
+- `format`: Auto-format code with black and isort
+- `type-check`: Type checking with mypy
+- `docs`: Build documentation
+
+For detailed tox usage, see [docs/tox-usage.md](docs/docs/tox-usage.md).
+
+### Development Workflow
+
+1. **Format code:** `tox run -e format`
+2. **Check quality:** `tox run -e lint`
+3. **Run tests:** `tox run -e py312`
+4. **Full test suite:** `tox` (if all Python versions available)
+
 ## Licence
 
 This project is dual-licensed under:

@@ -2,11 +2,11 @@
 Functions for processing the datasets for the pipeline.
 """
 
+from typing import List, Literal, Optional, Union
 import warnings
-from typing import Literal, Optional, Union
 
-import pandas as pd
 from loguru import logger
+import pandas as pd
 
 from nhs_herbot.errors import MergeColumnsNotFoundError, MergeWarning
 
@@ -60,8 +60,8 @@ def check_merge_health(
 def join_datasets(
     left: pd.DataFrame,
     right: pd.DataFrame,
-    left_on,
-    right_on,
+    left_on: Union[str, List[str]],
+    right_on: Union[str, List[str]],
     how: MergeHow = "left",
     check_merge: Union[bool, Literal["keep"]] = True,
     indicator_override: Optional[str] = None,
@@ -76,13 +76,13 @@ def join_datasets(
         The left dataset to join.
     right : pd.DataFrame
         The right dataset to join.
-    left_on : str | list[str]
+    left_on : Union[str, List[str]]
         The column to join on in the left dataset.
-    right_on : str | list[str]
+    right_on : Union[str, List[str]]
         The column to join on in the right dataset.
     how : MergeHow, optional
         The type of join to perform, by default "inner"
-    check_merge : bool | Literal["keep"], optional
+    check_merge : Union[bool, Literal["keep"]], optional
         Whether to check the merge for issues, by default True. If "keep" is passed, the merge
         column will be kept in the merged DataFrame.
     indicator_override : Optional[str], optional
