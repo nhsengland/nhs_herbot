@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "nhs_herbot"
-version = "2025.08.08"
+version = "2025.08.12"
 description = "Healthcare's Handy Easy and Reusable Box of Tricks"
 authors = [
   { name = "Joseph Wilson" },
