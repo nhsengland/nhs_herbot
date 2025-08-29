@@ -74,7 +74,7 @@ class SQLServer:
         try:
             logger.info(f"Connecting to database '{self.database}' on server '{self.server}'")
             self._connection = pyodbc.connect(conn_str, timeout=self.timeout)
-            logger.info("Database connection successful")
+            logger.success("Database connection successful")
         except pyodbc.Error as e:
             error_msg = f"Failed to connect to database '{self.database}' on server '{self.server}': {str(e)}"
             raise DatabaseConnectionError(error_msg) from e

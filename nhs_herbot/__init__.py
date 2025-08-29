@@ -2,6 +2,8 @@
 Import all the necessary modules and classes for the NHS Herbot package.
 """
 
+__version__ = "2025.08.12"
+
 from nhs_herbot.errors import *  # noqa: F403, F401
 from nhs_herbot.joins import *  # noqa: F403, F401
 from nhs_herbot.load_csv import *  # noqa: F403, F401
