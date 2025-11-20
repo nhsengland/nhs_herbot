@@ -9,7 +9,7 @@ from nhs_herbot import (
     NoDatasetsProvidedError,
     NoFilePathProvidedError,
     load_csv_data,
-    load_devices_datasets,
+    load_datasets,
 )
 
 
@@ -78,9 +78,9 @@ class TestLoadCsvData:
         mock_info.assert_called_with("Loading test data from: test")
 
 
-class TestLoadDevicesDatasets:
+class TestLoadDeviceDatasets:
     """
-    Tests for load_devices_datasets
+    Tests for load_datasets
     """
 
     def test_load_devices_datasets(self, mock_read_csv):
@@ -95,7 +95,7 @@ class TestLoadDevicesDatasets:
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
         mock_read_csv.return_value = mock_df
 
-        result = load_devices_datasets(datasets)
+        result = load_datasets(datasets)
         assert set(result.keys()) == set(datasets.keys())
 
     def test_data(self, mock_read_csv):
@@ -110,7 +110,7 @@ class TestLoadDevicesDatasets:
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
         mock_read_csv.return_value = mock_df
 
-        result = load_devices_datasets(datasets)
+        result = load_datasets(datasets)
         for dataset in result.values():
             assert "data" in dataset
 
@@ -126,7 +126,7 @@ class TestLoadDevicesDatasets:
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
         mock_read_csv.return_value = mock_df
 
-        result = load_devices_datasets(datasets)
+        result = load_datasets(datasets)
         for dataset in result.values():
             assert dataset["data"].shape == (2, 2)
 
@@ -142,7 +142,7 @@ class TestLoadDevicesDatasets:
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
         mock_read_csv.return_value = mock_df
 
-        result = load_devices_datasets(datasets)
+        result = load_datasets(datasets)
         for dataset in result.values():
             assert isinstance(dataset["data"], pd.DataFrame)
 
@@ -151,7 +151,7 @@ class TestLoadDevicesDatasets:
         Test that the function raises an AssertionError when no datasets are provided
         """
         with pytest.raises(NoDatasetsProvidedError):
-            load_devices_datasets({})
+            load_datasets({})
 
     def test_removes_data(self, mock_read_csv):
         """
@@ -165,7 +165,7 @@ class TestLoadDevicesDatasets:
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
         mock_read_csv.return_value = mock_df
 
-        result = load_devices_datasets(datasets)
+        result = load_datasets(datasets)
         dataset = result["test1"]
         assert str(dataset["data"]) != "test_data"
 

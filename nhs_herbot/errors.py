@@ -25,7 +25,7 @@ class NoFilePathProvidedError(LoggedException):
 
 class NoDatasetsProvidedError(LoggedException):
     """
-    Exception raised when no datasets are provided to the `load_devices_datasets` function.
+    Exception raised when no datasets are provided to the `load_datasets` function.
     """
 
 
@@ -197,13 +197,33 @@ class DuplicateDataError(LoggedException):
 
 class LoggedWarning(Warning):
     """
-    Custom exception class that logs the warning message using the logger.
+    Custom warning class that logs the warning message using the logger.
+
+    Can be used in two ways:
+    1. Traditional: warnings.warn("message", LoggedWarning)
+    2. Direct call: LoggedWarning().warn("message")
+
+    The direct call method logs the warning without using the warnings module,
+    which provides cleaner output.
     """
 
-    def __init__(self, message):
+    def __init__(self, message=None):
+        if message is not None:
+            self.message = message
+            logger.warning(self.message)
+            super().__init__(self.message)
+
+    def warn(self, message):
+        """
+        Log a warning message directly without using warnings.warn.
+
+        Parameters
+        ----------
+        message : str
+            The warning message to log.
+        """
         self.message = message
         logger.warning(self.message)
-        super().__init__(self.message)
 
 
 class MergeWarning(LoggedWarning):

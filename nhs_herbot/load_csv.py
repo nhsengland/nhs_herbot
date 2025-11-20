@@ -12,7 +12,7 @@ NoDatasetsProvidedError(Exception)
 Functions
 ---------
 load_csv_data(dataset_name: str, **read_csv_kwargs) -> pd.DataFrame
-load_devices_datasets(datasets: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]
+load_datasets(datasets: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]
 
 Constants
 ---------
@@ -70,11 +70,11 @@ def load_csv_data(dataset_name: str, **read_csv_kwargs) -> pd.DataFrame:
     ).dropna(how="all")
 
 
-def load_devices_datasets(
+def load_datasets(
     datasets: dict[str, dict[str, Any]],
 ) -> dict[str, dict[str, Any]]:
     """
-    Load device datasets from CSV files.
+    Load datasets from CSV files.
 
     Parameters
     ----------
