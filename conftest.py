@@ -2,8 +2,9 @@
 This module contains fixtures that are used by the test modules in the tests/ directory.
 """
 
-from typing import Any, Dict, Literal, Union
+from typing import Any, Literal, Union
 import warnings
+
 import pandas as pd
 import pytest
 
@@ -11,12 +12,37 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*platfo
 
 Logger = Any
 
-MockLoggerDict = Dict[
+MockLoggerDict = dict[
     Union[
-        Literal["info"], Literal["error"], Literal["warning"], Literal["success"], Literal["debug"]
+        Literal["info"],
+        Literal["error"],
+        Literal["warning"],
+        Literal["success"],
+        Literal["debug"],
     ],
     Logger,
 ]
+
+
+@pytest.fixture
+def mock_pyodbc(mocker):
+    """
+    Fixture to mock pyodbc for SQL tests.
+    Mocks both the module import and connection behavior.
+    """
+    from nhs_herbot import odbc_utils
+
+    # Create mock pyodbc module
+    mock_pyodbc_module = mocker.Mock()
+    mock_conn = mocker.Mock()
+    mock_pyodbc_module.connect = mocker.Mock(return_value=mock_conn)
+    mock_pyodbc_module.drivers = mocker.Mock(return_value=["ODBC Driver 17 for SQL Server"])
+    mock_pyodbc_module.Error = Exception
+
+    # Patch the module-level _pyodbc
+    mocker.patch.object(odbc_utils, "_pyodbc", mock_pyodbc_module)
+
+    return mock_pyodbc_module
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ financial dates, parsing date strings, sorting lists with dates, and more.
 
 from datetime import datetime, timedelta
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 import warnings
 
 from loguru import logger
@@ -20,7 +20,7 @@ def normalise_column_names(
     df: pd.DataFrame,
     to_lower: bool = True,
     strip: bool = True,
-    replace_values: Optional[Dict[str, str]] = None,
+    replace_values: Optional[dict[str, str]] = None,
 ) -> pd.DataFrame:
     """
     Normalise the column names of a dataframe. By default:
@@ -59,17 +59,9 @@ def normalise_column_names(
         df.columns = df.columns.str.strip()
 
     replace_values = (
-        {
-            "-": "",
-            "  ": " ",
-            "(": "",
-            ")": "",
-            "/": "_",
-            ".": "_",
-            " ": "_",
-        }
-        if not replace_values
-        else replace_values
+        replace_values
+        if replace_values
+        else {"-": "", "  ": " ", "(": "", ")": "", "/": "_", ".": "_", " ": "_"}
     )
 
     for pat, repl in replace_values.items():
@@ -98,7 +90,7 @@ def un_normalise_column_names(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def convert_values_to(
-    value: Any, match: Union[List[Any], Any], to: Any, invert_match: bool = False
+    value: Any, match: Union[list[Any], Any], to: Any, invert_match: bool = False
 ) -> Any:
     """
     If value matches the match list then it is converted to the provided "to" value. If invert_match
@@ -237,7 +229,7 @@ def parse_dates(
         return pd.NaT
 
 
-def sort_string_list_with_dates(list_of_strings: List[str], format: str = "%b %Y") -> List[str]:
+def sort_string_list_with_dates(list_of_strings: list[str], format: str = "%b %Y") -> list[str]:
     """
     Sort a list of strings that may contain dates in the format specified by the format parameter.
     The function will attempt to parse the date strings using the specified format and sort the
@@ -297,7 +289,7 @@ def convert_datetime_column_headers(
     return data
 
 
-def get_datetime_columns(data: pd.DataFrame) -> List[pd.Timestamp]:
+def get_datetime_columns(data: pd.DataFrame) -> list[pd.Timestamp]:
     """
     Get the datetime columns from the data.
 
@@ -315,8 +307,8 @@ def get_datetime_columns(data: pd.DataFrame) -> List[pd.Timestamp]:
 
 
 def replace_list_element_with_list(
-    main_list: List[Any], insert_list: List[Any], match_value: Any
-) -> List[Any]:
+    main_list: list[Any], insert_list: list[Any], match_value: Any
+) -> list[Any]:
     """
     Replace an element in a list with another list. The function will replace the first occurrence
     of the match_value in the main_list with the insert_list.
@@ -369,7 +361,7 @@ def timeit(func):
     return wrapped
 
 
-def sort_by_priority(data: pd.DataFrame, column: str, priorities: List[str]) -> pd.DataFrame:
+def sort_by_priority(data: pd.DataFrame, column: str, priorities: list[str]) -> pd.DataFrame:
     """
     Sort a DataFrame by a column based on a list of priorities.
 

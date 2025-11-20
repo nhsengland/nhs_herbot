@@ -85,14 +85,17 @@ class ColumnsNotFoundError(LoggedException):
     """
 
     def __init__(
-        self, dataset_columns, base_message="Columns were not found in the dataset.", **column_sets
+        self,
+        dataset_columns,
+        base_message="Columns were not found in the dataset.",
+        **column_sets,
     ):
         missing_columns_message_start = "MISSING COLUMNS:"
         columns_messages = []
         for column_set_name, column_set in column_sets.items():
             if isinstance(column_set, str):
                 column_set = [column_set]
-            missing_columns = sorted(list(set(column_set) - set(dataset_columns)))
+            missing_columns = sorted(set(column_set) - set(dataset_columns))
             if missing_columns:
                 columns_messages += [f"\t{column_set_name.upper()}: {missing_columns}"]
         if columns_messages:
@@ -131,8 +134,8 @@ class MergeColumnsNotFoundError(LoggedException):
             left_on = [left_on]
         if isinstance(right_on, str):
             right_on = [right_on]
-        self.bad_left = sorted(list(set(left_on) - set(left_columns)))
-        self.bad_right = sorted(list(set(right_on) - set(right_columns)))
+        self.bad_left = sorted(set(left_on) - set(left_columns))
+        self.bad_right = sorted(set(right_on) - set(right_columns))
         parts = []
         if self.bad_left:
             parts.append(f"The column(s) {self.bad_left} were not found in the left dataset.")

@@ -2,7 +2,7 @@
 Functions for processing the datasets for the pipeline.
 """
 
-from typing import List, Literal, Optional, Union
+from typing import Literal, Optional, Union
 import warnings
 
 from loguru import logger
@@ -14,7 +14,9 @@ MergeHow = Literal["left", "right", "outer", "inner"]
 
 
 def check_merge_health(
-    merged_df: pd.DataFrame, merge_column: Optional[str] = "_merge", keep_merge: bool = False
+    merged_df: pd.DataFrame,
+    merge_column: Optional[str] = "_merge",
+    keep_merge: bool = False,
 ) -> pd.DataFrame:
     """
     Check the merge for any issues and return the merged DataFrame.
@@ -42,7 +44,8 @@ def check_merge_health(
         bad_merge_count = merged_df[merge_column].value_counts().get(bad_merge, 0)
         if bad_merge_count:
             warnings.warn(
-                f"There are {bad_merge_count} '{bad_merge}' rows in the merged data", MergeWarning
+                f"There are {bad_merge_count} '{bad_merge}' rows in the merged data",
+                MergeWarning,
             )
             bad_merge_found = True
 
@@ -52,16 +55,14 @@ def check_merge_health(
     if keep_merge:
         return merged_df
 
-    merged_df = merged_df.drop(columns=merge_column)
-
-    return merged_df
+    return merged_df.drop(columns=merge_column)
 
 
 def join_datasets(
     left: pd.DataFrame,
     right: pd.DataFrame,
-    left_on: Union[str, List[str]],
-    right_on: Union[str, List[str]],
+    left_on: Union[str, list[str]],
+    right_on: Union[str, list[str]],
     how: MergeHow = "left",
     check_merge: Union[bool, Literal["keep"]] = True,
     indicator_override: Optional[str] = None,

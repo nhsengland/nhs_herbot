@@ -17,7 +17,7 @@ class TestNormaliseColumnNames:
     Tests for the utils.normalise_column_names function
     """
 
-    @pytest.fixture()
+    @pytest.fixture
     def input_df(self) -> pd.DataFrame:
         """
         Returns a dataframe with messy column names
@@ -30,8 +30,7 @@ class TestNormaliseColumnNames:
             "Column.E": [9, 10],
             "Column F": [11, 12],
         }
-        df = pd.DataFrame(data)
-        return df
+        return pd.DataFrame(data)
 
     @pytest.mark.parametrize(
         "expected_columns, to_lower, strip, replace_values",
@@ -49,13 +48,27 @@ class TestNormaliseColumnNames:
                 None,
             ),
             (
-                ["_column_a_", "columnb", "columnc", "column_d", "column_e", "column_f"],
+                [
+                    "_column_a_",
+                    "columnb",
+                    "columnc",
+                    "column_d",
+                    "column_e",
+                    "column_f",
+                ],
                 True,
                 False,
                 None,
             ),
             (
-                ["column a", "column-b", "column(c)", "column/d", "column.e", "column f"],
+                [
+                    "column a",
+                    "column-b",
+                    "column(c)",
+                    "column/d",
+                    "column.e",
+                    "column f",
+                ],
                 True,
                 True,
                 {" ": " "},
@@ -527,7 +540,7 @@ class TestSortByPriority:
     Tests for the utils.sort_by_priority function
     """
 
-    @pytest.fixture()
+    @pytest.fixture
     def input_df(self) -> pd.DataFrame:
         """
         Returns a dataframe with a column to be sorted by priority
@@ -536,8 +549,7 @@ class TestSortByPriority:
             "priority_column": ["low", "high", "medium", "low", "high"],
             "values": [1, 2, 3, 4, 5],
         }
-        df = pd.DataFrame(data)
-        return df
+        return pd.DataFrame(data)
 
     @pytest.mark.parametrize(
         "priorities, expected_order",
@@ -659,7 +671,11 @@ class TestFormatNumericValue:
         Test the format_numeric_value function with various inputs
         """
         result = utils.format_numeric_value(
-            value=value, decimals=decimals, thousands=thousands, prefix=prefix, suffix=suffix
+            value=value,
+            decimals=decimals,
+            thousands=thousands,
+            prefix=prefix,
+            suffix=suffix,
         )
         assert result == expected
 

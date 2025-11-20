@@ -3,21 +3,21 @@ Tests for nhs_herbot/sql.py SQLServer class
 """
 
 import pandas as pd
-import pyodbc
 import pytest
 
-from nhs_herbot.errors import DatabaseConnectionError, InvalidParametersError, SQLExecutionError
+from nhs_herbot.errors import (
+    DatabaseConnectionError,
+    InvalidParametersError,
+    SQLExecutionError,
+)
 from nhs_herbot.sql import SQLServer
 
 
 class TestSQLServer:
     """Tests for SQLServer class"""
 
-    def test_init_success(self, mocker):
+    def test_init_success(self, mock_pyodbc):
         """Test successful initialization"""
-        mock_conn = mocker.Mock()
-        mock_connect = mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database")
 
         assert sql.server == "server"
@@ -25,18 +25,15 @@ class TestSQLServer:
         assert sql.database == "database"
         assert sql.driver == "ODBC Driver 17 for SQL Server"
         assert sql.timeout == 30
-        mock_connect.assert_called_once()
+        mock_pyodbc.connect.assert_called_once()
 
-    def test_init_custom_driver(self, mocker):
+    def test_init_custom_driver(self, mock_pyodbc):
         """Test initialization with custom driver"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database", driver="ODBC Driver 18 for SQL Server")
 
         assert sql.driver == "ODBC Driver 18 for SQL Server"
 
-    def test_init_invalid_parameters(self):
+    def test_init_invalid_parameters(self, mock_pyodbc):
         """Test initialization with invalid parameters"""
         with pytest.raises(InvalidParametersError):
             SQLServer("", "user", "database")
@@ -50,19 +47,15 @@ class TestSQLServer:
         with pytest.raises(InvalidParametersError):
             SQLServer("server", "user", "database", timeout=-1)
 
-    def test_init_connection_failure(self, mocker):
+    def test_init_connection_failure(self, mock_pyodbc):
         """Test connection failure during initialization"""
-        mocker.patch(
-            "nhs_herbot.sql.pyodbc.connect", side_effect=pyodbc.Error("Connection failed")
-        )
+        mock_pyodbc.connect.side_effect = Exception("Connection failed")
 
         with pytest.raises(DatabaseConnectionError):
             SQLServer("server", "user", "database")
 
-    def test_query_success(self, mocker):
+    def test_query_success(self, mock_pyodbc, mocker):
         """Test successful query execution"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
         mock_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
         mocker.patch("nhs_herbot.sql.pd.read_sql", return_value=mock_df)
 
@@ -71,20 +64,15 @@ class TestSQLServer:
 
         assert result.equals(mock_df)
 
-    def test_query_empty_sql(self, mocker):
+    def test_query_empty_sql(self, mock_pyodbc):
         """Test query with empty SQL"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database")
 
         with pytest.raises(InvalidParametersError):
             sql.query("")
 
-    def test_query_execution_error(self, mocker):
+    def test_query_execution_error(self, mock_pyodbc, mocker):
         """Test query execution error"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
         mocker.patch("nhs_herbot.sql.pd.read_sql", side_effect=Exception("SQL error"))
 
         sql = SQLServer("server", "user", "database")
@@ -92,10 +80,8 @@ class TestSQLServer:
         with pytest.raises(SQLExecutionError):
             sql.query("SELECT * FROM test")
 
-    def test_query_from_file_success(self, mocker, tmp_path):
+    def test_query_from_file_success(self, mock_pyodbc, mocker, tmp_path):
         """Test successful query from file"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
         mock_df = pd.DataFrame({"col1": [1, 2]})
         mocker.patch("nhs_herbot.sql.pd.read_sql", return_value=mock_df)
 
@@ -110,11 +96,8 @@ class TestSQLServer:
 
         assert result.equals(mock_df)
 
-    def test_query_from_file_not_found(self, mocker):
+    def test_query_from_file_not_found(self, mock_pyodbc):
         """Test query from non-existent file"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database")
 
         with pytest.raises(InvalidParametersError) as exc_info:
@@ -122,31 +105,22 @@ class TestSQLServer:
 
         assert "SQL file not found" in str(exc_info.value)
 
-    def test_close_connection(self, mocker):
+    def test_close_connection(self, mock_pyodbc):
         """Test closing connection"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database")
         sql.close()
 
-        mock_conn.close.assert_called_once()
+        mock_pyodbc.connect.return_value.close.assert_called_once()
 
-    def test_context_manager(self, mocker):
+    def test_context_manager(self, mock_pyodbc):
         """Test context manager usage"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         with SQLServer("server", "user", "database") as sql:
             assert isinstance(sql, SQLServer)
 
-        mock_conn.close.assert_called_once()
+        mock_pyodbc.connect.return_value.close.assert_called_once()
 
-    def test_write_dataframe_success(self, mocker):
+    def test_write_dataframe_success(self, mock_pyodbc, mocker):
         """Test successful DataFrame write"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
         mock_to_sql = mocker.patch.object(df, "to_sql")
 
@@ -155,7 +129,7 @@ class TestSQLServer:
 
         mock_to_sql.assert_called_once_with(
             name="test_table",
-            con=mock_conn,
+            con=mock_pyodbc.connect.return_value,
             schema="dbo",
             if_exists="fail",
             index=False,
@@ -163,11 +137,8 @@ class TestSQLServer:
             chunksize=None,
         )
 
-    def test_write_dataframe_invalid_params(self, mocker):
+    def test_write_dataframe_invalid_params(self, mock_pyodbc):
         """Test write DataFrame with invalid parameters"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database")
 
         # Test empty DataFrame
@@ -192,29 +163,25 @@ class TestSQLServer:
         with pytest.raises(InvalidParametersError):
             sql.write_dataframe(df, "test_table", method="invalid")
 
-    def test_execute_non_query_success(self, mocker):
+    def test_execute_non_query_success(self, mock_pyodbc, mocker):
         """Test successful non-query execution"""
-        mock_conn = mocker.Mock()
         mock_cursor = mocker.Mock()
         mock_cursor.rowcount = 5
-        mock_conn.cursor.return_value = mock_cursor
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
+        mock_pyodbc.connect.return_value.cursor.return_value = mock_cursor
 
         sql = SQLServer("server", "user", "database")
         result = sql.execute_non_query("INSERT INTO test VALUES (1, 2)")
 
         assert result == 5
         mock_cursor.execute.assert_called_once()
-        mock_conn.commit.assert_called_once()
+        mock_pyodbc.connect.return_value.commit.assert_called_once()
         mock_cursor.close.assert_called_once()
 
-    def test_execute_non_query_with_params(self, mocker):
+    def test_execute_non_query_with_params(self, mock_pyodbc, mocker):
         """Test non-query execution with parameters"""
-        mock_conn = mocker.Mock()
         mock_cursor = mocker.Mock()
         mock_cursor.rowcount = 3
-        mock_conn.cursor.return_value = mock_cursor
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
+        mock_pyodbc.connect.return_value.cursor.return_value = mock_cursor
 
         sql = SQLServer("server", "user", "database")
         result = sql.execute_non_query(
@@ -224,38 +191,31 @@ class TestSQLServer:
         assert result == 3
         mock_cursor.execute.assert_called_once_with("INSERT INTO test_table VALUES (?, ?)")
 
-    def test_execute_non_query_empty_sql(self, mocker):
+    def test_execute_non_query_empty_sql(self, mock_pyodbc):
         """Test non-query with empty SQL"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database")
 
         with pytest.raises(InvalidParametersError):
             sql.execute_non_query("")
 
-    def test_execute_non_query_error(self, mocker):
+    def test_execute_non_query_error(self, mock_pyodbc, mocker):
         """Test non-query execution error"""
-        mock_conn = mocker.Mock()
         mock_cursor = mocker.Mock()
         mock_cursor.execute.side_effect = Exception("SQL error")
-        mock_conn.cursor.return_value = mock_cursor
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
+        mock_pyodbc.connect.return_value.cursor.return_value = mock_cursor
 
         sql = SQLServer("server", "user", "database")
 
         with pytest.raises(SQLExecutionError):
             sql.execute_non_query("INSERT INTO test VALUES (1, 2)")
 
-        mock_conn.rollback.assert_called_once()
+        mock_pyodbc.connect.return_value.rollback.assert_called_once()
 
-    def test_execute_non_query_from_file_success(self, mocker, tmp_path):
+    def test_execute_non_query_from_file_success(self, mock_pyodbc, mocker, tmp_path):
         """Test successful non-query from file"""
-        mock_conn = mocker.Mock()
         mock_cursor = mocker.Mock()
         mock_cursor.rowcount = 2
-        mock_conn.cursor.return_value = mock_cursor
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
+        mock_pyodbc.connect.return_value.cursor.return_value = mock_cursor
 
         sql_content = "INSERT INTO {table} VALUES (1, 2)"
 
@@ -269,11 +229,8 @@ class TestSQLServer:
         assert result == 2
         mock_cursor.execute.assert_called_once_with("INSERT INTO test_table VALUES (1, 2)")
 
-    def test_bulk_insert_success(self, mocker):
+    def test_bulk_insert_success(self, mock_pyodbc, mocker):
         """Test successful bulk insert"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         df = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6]})
         mock_to_sql = mocker.patch.object(df, "to_sql")
 
@@ -282,7 +239,7 @@ class TestSQLServer:
 
         mock_to_sql.assert_called_once_with(
             name="test_table",
-            con=mock_conn,
+            con=mock_pyodbc.connect.return_value,
             schema="dbo",
             if_exists="append",
             index=False,
@@ -290,11 +247,8 @@ class TestSQLServer:
             chunksize=2,
         )
 
-    def test_bulk_insert_invalid_params(self, mocker):
+    def test_bulk_insert_invalid_params(self, mock_pyodbc):
         """Test bulk insert with invalid parameters"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database")
 
         # Test empty DataFrame
@@ -307,11 +261,8 @@ class TestSQLServer:
         with pytest.raises(InvalidParametersError):
             sql.bulk_insert(df, "test_table", batch_size=0)
 
-    def test_create_table_from_dataframe_success(self, mocker):
+    def test_create_table_from_dataframe_success(self, mock_pyodbc, mocker):
         """Test successful table creation from DataFrame"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         df = pd.DataFrame({"col1": [1, 2], "col2": ["a", "b"]})
         mock_to_sql = mocker.patch("pandas.DataFrame.to_sql")
 
@@ -324,13 +275,11 @@ class TestSQLServer:
         assert call_args[1]["if_exists"] == "fail"
         assert call_args[1]["index"] is False
 
-    def test_table_exists_true(self, mocker):
+    def test_table_exists_true(self, mock_pyodbc, mocker):
         """Test table exists check returning True"""
-        mock_conn = mocker.Mock()
         mock_cursor = mocker.Mock()
         mock_cursor.fetchone.return_value = [1]
-        mock_conn.cursor.return_value = mock_cursor
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
+        mock_pyodbc.connect.return_value.cursor.return_value = mock_cursor
 
         sql = SQLServer("server", "user", "database")
         result = sql.table_exists("test_table")
@@ -339,36 +288,29 @@ class TestSQLServer:
         mock_cursor.execute.assert_called_once()
         mock_cursor.close.assert_called_once()
 
-    def test_table_exists_false(self, mocker):
+    def test_table_exists_false(self, mock_pyodbc, mocker):
         """Test table exists check returning False"""
-        mock_conn = mocker.Mock()
         mock_cursor = mocker.Mock()
         mock_cursor.fetchone.return_value = [0]
-        mock_conn.cursor.return_value = mock_cursor
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
+        mock_pyodbc.connect.return_value.cursor.return_value = mock_cursor
 
         sql = SQLServer("server", "user", "database")
         result = sql.table_exists("nonexistent_table")
 
         assert result is False
 
-    def test_table_exists_empty_name(self, mocker):
+    def test_table_exists_empty_name(self, mock_pyodbc):
         """Test table exists with empty table name"""
-        mock_conn = mocker.Mock()
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
-
         sql = SQLServer("server", "user", "database")
 
         with pytest.raises(InvalidParametersError):
             sql.table_exists("")
 
-    def test_table_exists_no_result(self, mocker):
+    def test_table_exists_no_result(self, mock_pyodbc, mocker):
         """Test table exists when query returns no result"""
-        mock_conn = mocker.Mock()
         mock_cursor = mocker.Mock()
         mock_cursor.fetchone.return_value = None
-        mock_conn.cursor.return_value = mock_cursor
-        mocker.patch("nhs_herbot.sql.pyodbc.connect", return_value=mock_conn)
+        mock_pyodbc.connect.return_value.cursor.return_value = mock_cursor
 
         sql = SQLServer("server", "user", "database")
         result = sql.table_exists("test_table")

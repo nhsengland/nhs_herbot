@@ -23,7 +23,7 @@ DATASETS : dict
 
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from loguru import logger
 import pandas as pd
@@ -64,15 +64,15 @@ def load_csv_data(dataset_name: str, **read_csv_kwargs) -> pd.DataFrame:
 
     logger.info(f"Loading {dataset_name} data from: {filepath_or_buffer}")
 
-    data_df = pd.read_csv(
+    return pd.read_csv(
         skip_blank_lines=True,
         **read_csv_kwargs,
     ).dropna(how="all")
 
-    return data_df
 
-
-def load_devices_datasets(datasets: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+def load_devices_datasets(
+    datasets: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
     """
     Load device datasets from CSV files.
 

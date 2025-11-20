@@ -70,7 +70,10 @@ class TestCustomExceptions:
                 "Test base message. MISSING COLUMNS: COLUMN_SET1: ['test1', 'test2']",
             ),
             (
-                {"column_set1": ["test1", "test2"], "column_set2": ["columnA", "columnB"]},
+                {
+                    "column_set1": ["test1", "test2"],
+                    "column_set2": ["columnA", "columnB"],
+                },
                 "Test base message. MISSING COLUMNS: COLUMN_SET1: ['test1', 'test2']",
             ),
             (
@@ -103,7 +106,10 @@ class TestCustomExceptions:
         "kwargs_dicts",
         [
             {"column_set1": ["columnA", "columnB"]},
-            {"column_set1": ["columnA", "columnB"], "column_set2": ["columnA", "columnB"]},
+            {
+                "column_set1": ["columnA", "columnB"],
+                "column_set2": ["columnA", "columnB"],
+            },
             {"column_set1": ["columnA"], "column_set2": ["columnB"]},
         ],
     )
@@ -194,7 +200,13 @@ class TestCustomExceptions:
         ],
     )
     def test_merge_columns_not_found_error(
-        self, mock_error, left_columns, right_columns, left_on, right_on, expected_message
+        self,
+        mock_error,
+        left_columns,
+        right_columns,
+        left_on,
+        right_on,
+        expected_message,
     ):
         """
         Test that the MergeColumnsNotFoundError raises the correct message. Cases include:

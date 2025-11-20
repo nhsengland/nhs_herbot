@@ -1,25 +1,27 @@
-"""
-Simple SQL Server database interaction module.
-"""
+"""SQL Server database interaction module."""
 
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 from loguru import logger
 import pandas as pd
-import pyodbc
 
-from nhs_herbot.errors import DatabaseConnectionError, InvalidParametersError, SQLExecutionError
+from nhs_herbot.errors import (
+    DatabaseConnectionError,
+    InvalidParametersError,
+    SQLExecutionError,
+)
+from nhs_herbot.odbc_utils import ODBCDriverDetector, validate_odbc_setup
 
 
 class SQLServer:
     """
-    Simple class for SQL Server database operations.
+    SQL Server database operations interface.
 
     Parameters
     ----------
     server : str
-        The SQL Server instance name
+        SQL Server instance name
     uid : str
         User ID for authentication
     database : str
@@ -44,12 +46,21 @@ class SQLServer:
         driver: str = "ODBC Driver 17 for SQL Server",
         timeout: int = 30,
     ):
+        # Validate ODBC setup before proceeding
+        validate_odbc_setup()
+
+        # Get pyodbc module
+        pyodbc = ODBCDriverDetector.get_pyodbc()
+        if pyodbc is None:
+            raise ImportError("pyodbc is required but not available")
+
+        self._pyodbc = pyodbc
         self.server = server
         self.uid = uid
         self.database = database
         self.driver = driver
         self.timeout = timeout
-        self._connection: Optional[pyodbc.Connection] = None
+        self._connection = None
 
         # Validate inputs
         if not all([server, uid, database]):
@@ -73,9 +84,9 @@ class SQLServer:
 
         try:
             logger.info(f"Connecting to database '{self.database}' on server '{self.server}'")
-            self._connection = pyodbc.connect(conn_str, timeout=self.timeout)
+            self._connection = self._pyodbc.connect(conn_str, timeout=self.timeout)
             logger.success("Database connection successful")
-        except pyodbc.Error as e:
+        except self._pyodbc.Error as e:
             error_msg = f"Failed to connect to database '{self.database}' on server '{self.server}': {str(e)}"
             raise DatabaseConnectionError(error_msg) from e
 
@@ -113,7 +124,7 @@ class SQLServer:
             raise SQLExecutionError(error_msg) from e
 
     def query_from_file(
-        self, file_path: Union[str, Path], replacements: Optional[Dict[str, str]] = None
+        self, file_path: Union[str, Path], replacements: Optional[dict[str, str]] = None
     ) -> pd.DataFrame:
         """
         Load SQL from file, apply replacements, and execute.
@@ -150,7 +161,7 @@ class SQLServer:
 
         try:
             logger.info(f"Reading SQL query from file: {file_path}")
-            with open(file_path, "r", encoding="utf-8") as file:
+            with open(file_path, encoding="utf-8") as file:
                 sql = file.read()
 
             # Apply replacements using format
@@ -250,7 +261,7 @@ class SQLServer:
             error_msg = f"Failed to write DataFrame to {schema}.{table_name}: {str(e)}"
             raise SQLExecutionError(error_msg) from e
 
-    def execute_non_query(self, sql: str, params: Optional[Dict[str, str]] = None) -> int:
+    def execute_non_query(self, sql: str, params: Optional[dict[str, str]] = None) -> int:
         """
         Execute a non-query SQL statement (INSERT, UPDATE, DELETE, etc.).
 
@@ -309,7 +320,7 @@ class SQLServer:
             raise SQLExecutionError(error_msg) from e
 
     def execute_non_query_from_file(
-        self, file_path: Union[str, Path], params: Optional[Dict[str, str]] = None
+        self, file_path: Union[str, Path], params: Optional[dict[str, str]] = None
     ) -> int:
         """
         Execute a non-query SQL statement from a file.
@@ -343,7 +354,7 @@ class SQLServer:
 
         try:
             logger.info(f"Reading non-query SQL from file: {file_path}")
-            with open(file_path, "r", encoding="utf-8") as file:
+            with open(file_path, encoding="utf-8") as file:
                 sql_content = file.read()
 
             return self.execute_non_query(sql_content, params)
@@ -419,7 +430,7 @@ class SQLServer:
         df: pd.DataFrame,
         table_name: str,
         schema: str = "dbo",
-        dtype_mapping: Optional[Dict[str, str]] = None,
+        dtype_mapping: Optional[dict[str, str]] = None,
     ) -> None:
         """
         Create a new table based on DataFrame structure.

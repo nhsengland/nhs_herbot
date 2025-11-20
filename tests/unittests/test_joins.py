@@ -161,7 +161,8 @@ class TestJoinDatasets:
         Return a left DataFrame for testing.
         """
         return pd.DataFrame(
-            columns=["col1", "col2"], data=[("foo", "bar"), ("baz", "qux"), ("ping", "pong")]
+            columns=["col1", "col2"],
+            data=[("foo", "bar"), ("baz", "qux"), ("ping", "pong")],
         )
 
     @pytest.fixture
@@ -170,7 +171,8 @@ class TestJoinDatasets:
         Return a right DataFrame for testing.
         """
         return pd.DataFrame(
-            columns=["col3", "col4"], data=[("foo", "bar"), ("baz", "qux"), ("bing", "bong")]
+            columns=["col3", "col4"],
+            data=[("foo", "bar"), ("baz", "qux"), ("bing", "bong")],
         )
 
     def test_returns_dataframe(self, left, right):
