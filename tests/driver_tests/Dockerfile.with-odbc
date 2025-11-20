@@ -1,0 +1,17 @@
+# Test 3: FreeTDS Driver
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install ODBC system libraries and FreeTDS
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    unixodbc unixodbc-dev tdsodbc \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+COPY pyproject.toml README.md LICENSE ./
+COPY nhs_herbot/ ./nhs_herbot/
+RUN uv pip install --system --no-cache -e .[sql]
+
+CMD ["python3", "-c", "from nhs_herbot.odbc_utils import validate_odbc_setup; validate_odbc_setup(); print('✓ FreeTDS working')"]
