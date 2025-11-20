@@ -1,9 +1,28 @@
+# NHSD Git Secrets - Base Allowed Patterns
+# This file contains common false-positive patterns that should be excluded from scanning
+# Users should copy this to their repository root as .gitallowed and add their own patterns
+
+# Exclude git-secrets itself
 .*git-secrets/.*:*
+
+# Exclude Terraform state files (contain sensitive data but are not committed)
 .*terraform.tfstate.*:*
+
+# Exclude SVG files (often contain base64 encoded images that trigger false positives)
 .*.svg:*
+
+# Exclude jQuery and other common libraries
 .*.jquery.*.js:*
+
+# Engine version strings
 .*engine_version*
+
+# Local development addresses
 .*127.0.0.1*
+
+# Assembly version attributes in .NET projects
 .*assembly: AssemblyVersion*
 .*assembly: AssemblyFileVersion*
+
+# Version strings in dependencies
 .*Version=*

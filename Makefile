@@ -13,13 +13,13 @@ PYTHON_INTERPRETER = python
 
 ## Install Python Dependencies
 .PHONY: requirements
-requirements: 
+requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Install Python Dependencies Quietly
 .PHONY: requirements_quiet
-requirements_quiet: 
+requirements_quiet:
 	$(PYTHON_INTERPRETER) -m pip install -q -U pip
 	$(PYTHON_INTERPRETER) -m pip install -q -r requirements.txt
 
@@ -110,7 +110,7 @@ test: requirements_quiet
 ## Run only unittests
 .PHONY: unittest
 unittest: requirements_quiet
-	$(PYTHON_INTERPRETER) -m pytest tests/unittests 
+	$(PYTHON_INTERPRETER) -m pytest tests/unittests
 
 ## Run only end-to-end (e2e) tests
 .PHONY: e2e
