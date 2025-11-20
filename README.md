@@ -95,14 +95,14 @@ NHS HERBOT (Healthcare's Handy, Easy, and Reusable Box of Tricks) is a Python pa
 
 ## Development Status
 
-**Current Status:** Work in Progress (Alpha)  
-**Version:** 2025.04.02  
-**Maintenance:** Actively maintained  
+**Current Status:** Work in Progress (Alpha)
+**Version:** 2025.04.02
+**Maintenance:** Actively maintained
 **Last Updated:** August 2025
 
 ## Contact Information
 
-**Primary Maintainer:** [Joseph Wilson](https://github.com/josephwilson8-nhs)  
+**Primary Maintainer:** [Joseph Wilson](https://github.com/josephwilson8-nhs)
 **Contact:** [Contact via GitHub Issues](https://github.com/nhsengland/nhs_herbot/issues) for project-related queries
 
 ## Data Description
@@ -153,12 +153,19 @@ Install NHS HERBOT using pip:
 pip install nhs-herbot
 ```
 
+For SQL Server functionality, install with the sql extras:
+
+```bash
+pip install nhs-herbot[sql]
+```
+
 Or for development:
 
 ```bash
 git clone https://github.com/nhsengland/nhs_herbot.git
 cd nhs_herbot
-pip install -e .
+pip install -e .[sql,dev]
+```
 ```
 
 ### Basic Usage
@@ -176,16 +183,16 @@ normalised_data = herbot.normalise_column_names(data)
 with herbot.SQLServer(server='your_server', database='your_db') as sql:
     # Read data
     results = sql.query('SELECT * FROM your_table')
-    
+
     # Write data
     sql.write_dataframe(data, 'new_table', if_exists='replace')
-    
+
     # Execute non-query operations
     rows_affected = sql.execute_non_query('UPDATE table SET status = ?', {'status': 'processed'})
-    
+
     # Bulk insert for large datasets
     sql.bulk_insert(large_df, 'bulk_table', batch_size=5000)
-    
+
     # Check if table exists
     if sql.table_exists('target_table'):
         print("Table exists!")
@@ -196,6 +203,34 @@ joined_data = herbot.join_datasets(left_df, right_df, join_columns=['id'])
 # Convert financial dates
 date_data = herbot.convert_fin_dates(fin_month=4, fin_year=2024)
 ```
+
+### System Dependencies for SQL Server
+
+If you use SQL Server features, you'll need ODBC system libraries installed:
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install unixodbc-dev
+```
+
+**RHEL/CentOS/Fedora:**
+```bash
+sudo yum install unixODBC-devel
+```
+
+**macOS:**
+```bash
+brew install unixodbc
+```
+
+Then install the package with SQL support:
+```bash
+uv pip install nhs-herbot[sql]
+```
+
+For SQL Server connections, you may also need the [Microsoft ODBC driver](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server).
+
+**Note:** The package will automatically detect missing dependencies and provide helpful error messages with installation instructions if you try to use SQL features without the required drivers.
 
 ### Core Functionality
 
@@ -247,6 +282,31 @@ tox
 - `docs`: Build documentation
 
 For detailed tox usage, see [docs/tox-usage.md](docs/docs/tox-usage.md).
+
+## System Dependencies for SQL Server Features
+
+If you plan to use the SQL Server functionality (`nhs_herbot.sql.SQLServer`), you'll need system ODBC drivers installed:
+
+**Ubuntu/Debian:**
+
+```bash
+sudo apt-get install unixodbc-dev
+```
+
+**RHEL/CentOS/Fedora:**
+
+```bash
+sudo yum install unixODBC-devel
+# or: sudo dnf install unixODBC-devel
+```
+
+Then install pyodbc:
+
+```bash
+pip install pyodbc
+```
+
+For SQL Server connections, you may also need the Microsoft ODBC driver. See [Microsoft's installation guide](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server) for your distribution.
 
 ### Development Workflow
 
