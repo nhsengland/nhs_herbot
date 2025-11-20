@@ -30,7 +30,7 @@ class TestVersion:
 
     def test_version_value(self):
         """Test that __version__ has the expected current value."""
-        assert nhs_herbot.__version__ == "2025.08.12"
+        assert nhs_herbot.__version__ == "2025.11.20"
 
 
 if __name__ == "__main__":
