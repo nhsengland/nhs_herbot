@@ -20,53 +20,47 @@ def normalise_column_names(
     df: pd.DataFrame,
     to_lower: bool = True,
     strip: bool = True,
-    replace_values: Optional[dict[str, str]] = None,
 ) -> pd.DataFrame:
     """
-    Normalise the column names of a dataframe. By default:
-        * The column names are cast to all lower case
-        * Whitespace around the columns are remove
-        * Punctuation and spaces are removed or replaced with underscores, "_".
+    Normalise column names by stripping whitespace, lowercasing, and removing symbols.
+
+    Converts common separators (/ \\ . spaces) to underscores, removes hyphens and all other
+    non-alphanumeric characters, collapses multiple underscores, and strips leading/trailing
+    underscores.
 
     Parameters
     ----------
     df : pd.DataFrame
         Input dataframe with messy column names
     to_lower : bool, optional
-        Cast column names to lower case, by default True
+        Cast column names to lowercase, by default True
     strip : bool, optional
         Strip whitespace from start and end of column names, by default True
-    replace_values : Optional[Dict[str, str]], optional
-        Dictionary of values to be replaces, by default {
-        "-": "",
-        "  ": " ",
-        "(": "",
-        ")": "",
-        "/": "_",
-        ".": "_",
-        " ": "_",
-    }
 
     Returns
     -------
     pd.DataFrame
         Dataframe with cleaned column names
+
+    Examples
+    --------
+    >>> df = pd.DataFrame({" Column A ": [1], "Col#2/Part-B": [2]})
+    >>> normalise_column_names(df)
+       column_a  col2_partb
+    0         1           2
     """
-    if to_lower:
-        df.columns = df.columns.str.lower()
+    cols = df.columns.astype(str)
 
     if strip:
-        df.columns = df.columns.str.strip()
+        cols = cols.str.strip()
+    if to_lower:
+        cols = cols.str.lower()
 
-    replace_values = (
-        replace_values
-        if replace_values
-        else {"-": "", "  ": " ", "(": "", ")": "", "/": "_", ".": "_", " ": "_"}
-    )
+    cols = cols.str.replace(r"[/\\\.\s]+", "_", regex=True)
+    cols = cols.str.replace(r"[^a-zA-Z0-9_]", "", regex=True)
+    cols = cols.str.replace(r"_+", "_", regex=True).str.strip("_")
 
-    for pat, repl in replace_values.items():
-        df.columns = df.columns.map(lambda x, pat=pat, repl=repl: x.replace(pat, repl))
-
+    df.columns = cols
     return df
 
 
